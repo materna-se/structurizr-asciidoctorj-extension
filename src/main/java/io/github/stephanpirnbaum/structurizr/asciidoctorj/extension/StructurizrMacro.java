@@ -47,9 +47,9 @@ public class StructurizrMacro extends BlockMacroProcessor {
             workspaceJsonFile = Optional.empty();
         }
 
-        String diagramKey = (String) attributes.get("diagramKey");
-        if (diagramKey == null) {
-            throw new StructurizrException("No diagram key specified.");
+        String viewKey = (String) attributes.get("viewKey");
+        if (viewKey == null) {
+            throw new StructurizrException("No viewKey specified.");
         }
 
         String diagramRenderer = (String) attributes.getOrDefault("renderer", "structurizr");
@@ -62,15 +62,15 @@ public class StructurizrMacro extends BlockMacroProcessor {
             default -> throw new StructurizrException("Unknown diagram renderer specified: " + diagramRenderer);
         };
 
-        Path outDir = resolveOutdir(structuralNode).resolve(diagramRenderer);
+        Path outDir = resolveOutdir(structuralNode);
 
         // todo everytime only one diagram is requested, but all are rendered. Some caching would be good as the same diagram could be embedded multiple times. need to hash file to register changes.
         try {
-            Map<String, Path> diagrams = diagramExporter.export(workspace, workspaceJsonFile, outDir.toFile());
+            Map<String, Path> diagrams = diagramExporter.export(workspace, workspaceJsonFile, outDir.toFile(), viewKey);
             Map<String, Object> imageAttributes = new java.util.HashMap<>();
 
-            imageAttributes.put("target", Path.of(diagramRenderer, diagramKey + ".svg").toString());
-            imageAttributes.put("title", diagramKey);
+            imageAttributes.put("target", Path.of(diagramRenderer, viewKey + ".svg").toString());
+            imageAttributes.put("title", viewKey);
             return createBlock(structuralNode, "image", "", imageAttributes);
         } catch (StructurizrRenderingException e) {
             throw new RuntimeException(e);
