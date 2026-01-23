@@ -1,52 +1,31 @@
 package io.github.stephanpirnbaum.structurizr.asciidoctorj.extension;
 
-import com.structurizr.Workspace;
-import com.structurizr.dsl.StructurizrDslParser;
-import com.structurizr.dsl.StructurizrDslParserException;
-import com.structurizr.view.ThemeUtils;
 import io.github.stephanpirnbaum.structurizr.renderer.AbstractDiagramExporter;
 import io.github.stephanpirnbaum.structurizr.renderer.StructurizrRenderingException;
 import io.github.stephanpirnbaum.structurizr.renderer.mermaid.MermaidExporter;
 import io.github.stephanpirnbaum.structurizr.renderer.plantuml.PlantUMLExporter;
 import io.github.stephanpirnbaum.structurizr.renderer.plantuml.PlantumlLayoutEngine;
 import io.github.stephanpirnbaum.structurizr.renderer.structurizr.StructurizrExporter;
+import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import org.asciidoctor.ast.StructuralNode;
 import org.asciidoctor.extension.BlockMacroProcessor;
 import org.asciidoctor.extension.Name;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
-import java.util.Optional;
 
+@Slf4j
 @Name("structurizrc4")
 public class StructurizrMacro extends BlockMacroProcessor {
 
+    public StructurizrMacro() {
+        log.info("Constructing Structurizr Macro");
+    }
+
+    @SneakyThrows
     @Override
     public StructuralNode process(StructuralNode structuralNode, String workspacePath, Map<String, Object> attributes) {
-        Workspace workspace;
-        try {
-            String workspaceDsl = Files.readString(Path.of((String) structuralNode.getDocument().getAttribute("docdir"), workspacePath));
-            StructurizrDslParser parser = new StructurizrDslParser();
-            parser.parse(workspaceDsl);
-            workspace = parser.getWorkspace();
-            ThemeUtils.loadThemes(workspace);
-        } catch (IOException | StructurizrDslParserException e) {
-            throw new StructurizrException("Could not read workspace dsl", e);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-
-        String workspaceJson = (String) attributes.get("workspaceJson"); // todo directly workspace with different options?
-        Optional<File> workspaceJsonFile;
-        if (workspaceJson != null && !workspaceJson.isEmpty()) {
-            workspaceJsonFile = Optional.of(Path.of((String) structuralNode.getDocument().getAttribute("docdir"), workspaceJson).toFile());
-        } else {
-            workspaceJsonFile = Optional.empty();
-        }
-
         String viewKey = (String) attributes.get("viewKey");
         if (viewKey == null) {
             throw new StructurizrException("No viewKey specified.");
@@ -62,11 +41,21 @@ public class StructurizrMacro extends BlockMacroProcessor {
             default -> throw new StructurizrException("Unknown diagram renderer specified: " + diagramRenderer);
         };
 
+        log.info("Rendering view with key {} using engine {}", viewKey, diagramRenderer);
+
+        Path workspaceDslPath = Path.of((String) structuralNode.getDocument().getAttribute("docdir"), workspacePath);
+
+        String workspaceJson = (String) attributes.get("workspaceJson"); // todo directly workspace with different options?
+        Path workspaceJsonPath = null;
+        if (workspaceJson != null && !workspaceJson.isEmpty()) {
+            workspaceJsonPath = Path.of((String) structuralNode.getDocument().getAttribute("docdir"), workspaceJson);
+        }
+
         Path outDir = resolveOutdir(structuralNode);
 
         // todo everytime only one diagram is requested, but all are rendered. Some caching would be good as the same diagram could be embedded multiple times. need to hash file to register changes.
         try {
-            Map<String, Path> diagrams = diagramExporter.export(workspace, workspaceJsonFile, outDir.toFile(), viewKey);
+            Map<String, Path> diagrams = diagramExporter.export(workspaceDslPath, workspaceJsonPath, outDir.toFile(), viewKey);
             Map<String, Object> imageAttributes = new java.util.HashMap<>();
 
             imageAttributes.put("target", Path.of(diagramRenderer, viewKey + ".svg").toString());
