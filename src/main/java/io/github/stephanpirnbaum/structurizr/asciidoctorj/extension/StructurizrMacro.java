@@ -19,6 +19,9 @@ import java.util.Map;
 @Name("structurizrc4")
 public class StructurizrMacro extends BlockMacroProcessor {
 
+    // Cache expensive exporters (Playwright installation)
+    private StructurizrExporter structurizrExporter;
+
     public StructurizrMacro() {
         log.info("Constructing Structurizr Macro");
     }
@@ -37,7 +40,12 @@ public class StructurizrMacro extends BlockMacroProcessor {
         AbstractDiagramExporter diagramExporter = switch (diagramRenderer) {
             case "plantuml-c4" -> new PlantUMLExporter(plantumlLayoutEngine);
             case "mermaid" -> new MermaidExporter();
-            case "structurizr" -> new StructurizrExporter(true);
+            case "structurizr" -> {
+                if (this.structurizrExporter == null){
+                    this.structurizrExporter = new StructurizrExporter(true);
+                }
+                yield this.structurizrExporter;
+            }
             default -> throw new StructurizrException("Unknown diagram renderer specified: " + diagramRenderer);
         };
 
