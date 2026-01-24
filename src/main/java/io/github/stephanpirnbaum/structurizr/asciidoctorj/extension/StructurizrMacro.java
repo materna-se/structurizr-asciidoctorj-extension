@@ -66,7 +66,7 @@ public class StructurizrMacro extends BlockMacroProcessor {
             Map<String, Path> diagrams = diagramExporter.export(workspaceDslPath, workspaceJsonPath, outDir.toFile(), viewKey);
             Map<String, Object> imageAttributes = new java.util.HashMap<>();
 
-            imageAttributes.put("target", Path.of(diagramRenderer, viewKey + ".svg").toString());
+            imageAttributes.put("target", diagrams.get(viewKey).getFileName().toString());
             imageAttributes.put("title", viewKey);
             return createBlock(structuralNode, "image", "", imageAttributes);
         } catch (StructurizrRenderingException e) {
