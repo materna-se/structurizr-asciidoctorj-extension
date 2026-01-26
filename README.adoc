@@ -1,0 +1,88 @@
+= structurizr-asciidoctorj-extension
+
+Support the rendering of Structurizr DSL views in AsciiDoc using different rendering algorithms including the same as provided by the Structurizr UI.
+
+This extension provides a macro called `structurizrc4` that can be used directly in an Asciidoc document. It is configurable to support different renderers (C4-PlantUML, Mermaid and the Structurizr renderer used by the Structurizr Lite UI) and, when the latter is used, supports also manual layout files.
+
+NOTE:: When C4-PlantUML is used with the default layouting algorithm GraphViz, a GraphViz installation is required and `dot` needs to be on the path.
+
+NOTE:: When Mermaid is used, a Mermaid installation is required and `mmdc` needs to be on the path.
+
+The following shows the different usage scenarios. The examples expect the referenced files to be at the same location as the AsciiDoc. This can be changed by using a relative path.
+
+[source,asciidoc]
+.Structurizr renderer with automatic layout. Auto-Layout must be enabled in the DSL file.
+----
+structurizrc4::workspace.dsl[renderer="structurizr",viewKey="0501-System_Context_Diagram"]
+----
+
+[source,asciidoc]
+.Structurizr renderer with manual layout
+----
+structurizrc4::workspace.dsl[workspaceJson="workspace.json",renderer="structurizr",viewKey="0501-System_Context_Diagram"]
+----
+
+[source,asciidoc]
+.C4-PlantUML renderer with GraphViz layouting
+----
+structurizrc4::workspace.dsl[renderer="plantuml-c4",viewKey="0501-System_Context_Diagram"]
+----
+
+[source,asciidoc]
+.C4-PlantUML renderer with Smetana layouting
+----
+structurizrc4::workspace.dsl[renderer="plantuml-c4",plantumlLayoutEngine="smetana",viewKey="0501-System_Context_Diagram"]
+----
+
+[source,asciidoc]
+.C4-PlantUML renderer with ELK layouting
+----
+structurizrc4::workspace.dsl[renderer="plantuml-c4",plantumlLayoutEngine="elk",viewKey="0501-System_Context_Diagram"]
+----
+
+[source,asciidoc]
+.Mermaid renderer
+----
+structurizrc4::workspace.dsl[renderer="mermaid",diagramKey="0501-System_Context_Diagram"]
+----
+
+== Usage with the Asciidoctor Maven plugin
+
+The extension must be used as a dependency to the `asciidoctor-maven-plugin`:
+
+[source,xml]
+----
+<plugin>
+    <groupId>org.asciidoctor</groupId>
+    <artifactId>asciidoctor-maven-plugin</artifactId>
+    <version>3.2.0</version>
+    <executions>
+        <execution>
+            <id>render-docs</id>
+            <phase>prepare-package</phase>
+            <goals>
+                <goal>process-asciidoc</goal>
+            </goals>
+            <configuration>
+                <sourceDirectory>${project.basedir}/arc42</sourceDirectory>
+            </configuration>
+        </execution>
+    </executions>
+    <dependencies>
+        <dependency>
+            <groupId>io.github.stephanpirnbaum</groupId>
+            <artifactId>structurizr-asciidoctorj-extension</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+    </dependencies>
+</plugin>
+----
+
+== Usage with the IntelliJ AsciiDoc plugin
+
+This extension can also be used in the IntelliJ AsciiDoc plugin so that the diagrams are rendered also in the preview view. 
+For this, download the Shaded jar which is provided in this repository under the latest release. 
+
+Next, when having IntelliJ open, create following folder in the root directory: `.asciidoctor/lib`.
+
+Now copy the downloaded shaded jar into the just created folder and reopen the Asciidoc file. After a few seconds, a notification will be displayed saying that an extension folder has been identified. In order to activate the extension, confirm that the folder should be used. 

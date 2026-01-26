@@ -8,6 +8,7 @@ import io.github.stephanpirnbaum.structurizr.renderer.plantuml.PlantumlLayoutEng
 import io.github.stephanpirnbaum.structurizr.renderer.structurizr.StructurizrExporter;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.asciidoctor.ast.StructuralNode;
 import org.asciidoctor.extension.BlockMacroProcessor;
 import org.asciidoctor.extension.Name;
@@ -15,6 +16,11 @@ import org.asciidoctor.extension.Name;
 import java.nio.file.Path;
 import java.util.Map;
 
+/**
+ * Macro for Asciidoc.
+ *
+ * @author Stephan Pirnbaum
+ */
 @Slf4j
 @Name("structurizrc4")
 public class StructurizrMacro extends BlockMacroProcessor {
@@ -23,17 +29,44 @@ public class StructurizrMacro extends BlockMacroProcessor {
     private StructurizrExporter structurizrExporter;
 
     public StructurizrMacro() {
-        log.info("Constructing Structurizr Macro");
+        log.debug("Constructing Structurizr Macro");
     }
 
     @SneakyThrows
     @Override
     public StructuralNode process(StructuralNode structuralNode, String workspacePath, Map<String, Object> attributes) {
-        String viewKey = (String) attributes.get("viewKey");
-        if (viewKey == null) {
-            throw new StructurizrException("No viewKey specified.");
-        }
+        String viewKey = resolveViewKey(attributes);
 
+        AbstractDiagramExporter diagramExporter = resolveDiagramExporter(attributes, viewKey);
+
+        Path workspaceDslPath = Path.of((String) structuralNode.getDocument().getAttribute("docdir"), workspacePath);
+
+        Path workspaceJsonPath = resolveWorkspaceJson(structuralNode, attributes);
+
+        Path outDir = resolveOutdir(structuralNode);
+
+        try {
+            Map<String, Path> diagrams = diagramExporter.export(workspaceDslPath, workspaceJsonPath, outDir.toFile(), viewKey);
+            Map<String, Object> imageAttributes = new java.util.HashMap<>();
+
+            imageAttributes.put("target", diagrams.get(viewKey).getFileName().toString());
+            imageAttributes.put("title", viewKey);
+            return createBlock(structuralNode, "image", "", imageAttributes);
+        } catch (StructurizrRenderingException e) {
+            throw new StructurizrException("Failed to render view with key " + viewKey, e);
+        }
+    }
+
+    private static Path resolveWorkspaceJson(StructuralNode structuralNode, Map<String, Object> attributes) {
+        String workspaceJson = (String) attributes.get("workspaceJson");
+        Path workspaceJsonPath = null;
+        if (StringUtils.isNotBlank(workspaceJson)) {
+            workspaceJsonPath = Path.of((String) structuralNode.getDocument().getAttribute("docdir"), workspaceJson);
+        }
+        return workspaceJsonPath;
+    }
+
+    private AbstractDiagramExporter resolveDiagramExporter(Map<String, Object> attributes, String viewKey) throws StructurizrRenderingException {
         String diagramRenderer = (String) attributes.getOrDefault("renderer", "structurizr");
         PlantumlLayoutEngine plantumlLayoutEngine = PlantumlLayoutEngine.valueOf(((String) attributes.getOrDefault("plantumlLayoutEngine", "graphviz")).toUpperCase());
 
@@ -49,29 +82,16 @@ public class StructurizrMacro extends BlockMacroProcessor {
             default -> throw new StructurizrException("Unknown diagram renderer specified: " + diagramRenderer);
         };
 
-        log.info("Rendering view with key {} using engine {}", viewKey, diagramRenderer);
+        log.debug("Rendering view with key {} using engine {}", viewKey, diagramRenderer);
+        return diagramExporter;
+    }
 
-        Path workspaceDslPath = Path.of((String) structuralNode.getDocument().getAttribute("docdir"), workspacePath);
-
-        String workspaceJson = (String) attributes.get("workspaceJson"); // todo directly workspace with different options?
-        Path workspaceJsonPath = null;
-        if (workspaceJson != null && !workspaceJson.isEmpty()) {
-            workspaceJsonPath = Path.of((String) structuralNode.getDocument().getAttribute("docdir"), workspaceJson);
+    private static String resolveViewKey(Map<String, Object> attributes) {
+        String viewKey = (String) attributes.get("viewKey");
+        if (viewKey == null) {
+            throw new StructurizrException("No viewKey specified.");
         }
-
-        Path outDir = resolveOutdir(structuralNode);
-
-        // todo everytime only one diagram is requested, but all are rendered. Some caching would be good as the same diagram could be embedded multiple times. need to hash file to register changes.
-        try {
-            Map<String, Path> diagrams = diagramExporter.export(workspaceDslPath, workspaceJsonPath, outDir.toFile(), viewKey);
-            Map<String, Object> imageAttributes = new java.util.HashMap<>();
-
-            imageAttributes.put("target", diagrams.get(viewKey).getFileName().toString());
-            imageAttributes.put("title", viewKey);
-            return createBlock(structuralNode, "image", "", imageAttributes);
-        } catch (StructurizrRenderingException e) {
-            throw new RuntimeException(e);
-        }
+        return viewKey;
     }
 
     private Path resolveOutdir(StructuralNode structuralNode) {

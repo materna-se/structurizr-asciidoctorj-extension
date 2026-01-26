@@ -5,6 +5,11 @@ import org.asciidoctor.Asciidoctor;
 import org.asciidoctor.extension.JavaExtensionRegistry;
 import org.asciidoctor.jruby.extension.spi.ExtensionRegistry;
 
+/**
+ * Loader for the Structurizr extension.
+ *
+ * @author Stephan Pirnbaum
+ */
 @Slf4j
 public class ExtensionLoader  implements ExtensionRegistry {
 
