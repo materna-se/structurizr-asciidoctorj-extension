@@ -14,6 +14,8 @@ import org.asciidoctor.extension.BlockMacroProcessor;
 import org.asciidoctor.extension.Name;
 
 import java.nio.file.Path;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -36,6 +38,7 @@ public class StructurizrMacro extends BlockMacroProcessor {
     @Override
     public StructuralNode process(StructuralNode structuralNode, String workspacePath, Map<String, Object> attributes) {
         String viewKey = resolveViewKey(attributes);
+        String title = resolveTitle(attributes, viewKey);
 
         AbstractDiagramExporter diagramExporter = resolveDiagramExporter(attributes, viewKey);
 
@@ -47,11 +50,14 @@ public class StructurizrMacro extends BlockMacroProcessor {
 
         try {
             Map<String, Path> diagrams = diagramExporter.export(workspaceDslPath, workspaceJsonPath, outDir.toFile(), viewKey);
-            Map<String, Object> imageAttributes = new java.util.HashMap<>();
 
-            imageAttributes.put("target", diagrams.get(viewKey).getFileName().toString());
-            imageAttributes.put("title", viewKey);
-            return createBlock(structuralNode, "image", "", imageAttributes);
+            List<String> lines = Arrays.asList(
+                    "." + title,
+                    "image::" + diagrams.get(viewKey).getFileName().toString() + "[]"
+            );
+
+            parseContent(structuralNode, lines);
+            return structuralNode;
         } catch (StructurizrRenderingException e) {
             throw new StructurizrException("Failed to render view with key " + viewKey, e);
         }
@@ -89,9 +95,13 @@ public class StructurizrMacro extends BlockMacroProcessor {
     private static String resolveViewKey(Map<String, Object> attributes) {
         String viewKey = (String) attributes.get("viewKey");
         if (viewKey == null) {
-            throw new StructurizrException("No viewKey specified.");
+            throw new StructurizrException("No viewKey specified for Structurizr diagram.");
         }
         return viewKey;
+    }
+
+    private static String resolveTitle(Map<String, Object> attributes, String viewKey) {
+        return (String) attributes.getOrDefault("title", viewKey);
     }
 
     private Path resolveOutdir(StructuralNode structuralNode) {

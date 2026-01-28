@@ -43,8 +43,18 @@ structurizrc4::workspace.dsl[renderer="plantuml-c4",plantumlLayoutEngine="elk",v
 [source,asciidoc]
 .Mermaid renderer
 ----
-structurizrc4::workspace.dsl[renderer="mermaid",diagramKey="0501-System_Context_Diagram"]
+structurizrc4::workspace.dsl[renderer="mermaid",viewKey="0501-System_Context_Diagram"]
 ----
+
+A custom title can also be specified. If no title is specified manually, the view key will be used.
+
+[source,asciidoc]
+.Specifying a custom title
+----
+.A custom title
+structurizrc4::workspace.dsl[renderer="structurizr",diagramKey="0501-System_Context_Diagram"]
+----
+
 
 == Usage with the Asciidoctor Maven plugin
 
