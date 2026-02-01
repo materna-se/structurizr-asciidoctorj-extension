@@ -1,6 +1,6 @@
 = structurizr-asciidoctorj-extension
 
-Support the rendering of Structurizr DSL views in AsciiDoc using different rendering algorithms including the same as provided by the Structurizr UI.
+This extension supports the rendering of Structurizr DSL views in AsciiDoc using different rendering algorithms including the same as provided by the Structurizr UI.
 
 This extension provides a macro called `structurizrc4` that can be used directly in an Asciidoc document. It is configurable to support different renderers (C4-PlantUML, Mermaid and the Structurizr renderer used by the Structurizr Lite UI) and, when the latter is used, supports also manual layout files.
 
@@ -25,19 +25,19 @@ structurizrc4::workspace.dsl[workspaceJson="workspace.json",renderer="structuriz
 [source,asciidoc]
 .C4-PlantUML renderer with GraphViz layouting
 ----
-structurizrc4::workspace.dsl[renderer="plantuml-c4",viewKey="0501-System_Context_Diagram"]
+structurizrc4::workspace.dsl[renderer="plantuml_c4",viewKey="0501-System_Context_Diagram"]
 ----
 
 [source,asciidoc]
 .C4-PlantUML renderer with Smetana layouting
 ----
-structurizrc4::workspace.dsl[renderer="plantuml-c4",plantumlLayoutEngine="smetana",viewKey="0501-System_Context_Diagram"]
+structurizrc4::workspace.dsl[renderer="plantuml_c4",plantumlLayoutEngine="smetana",viewKey="0501-System_Context_Diagram"]
 ----
 
 [source,asciidoc]
 .C4-PlantUML renderer with ELK layouting
 ----
-structurizrc4::workspace.dsl[renderer="plantuml-c4",plantumlLayoutEngine="elk",viewKey="0501-System_Context_Diagram"]
+structurizrc4::workspace.dsl[renderer="plantuml_c4",plantumlLayoutEngine="elk",viewKey="0501-System_Context_Diagram"]
 ----
 
 [source,asciidoc]
@@ -52,9 +52,8 @@ A custom title can also be specified. If no title is specified manually, the vie
 .Specifying a custom title
 ----
 .A custom title
-structurizrc4::workspace.dsl[renderer="structurizr",diagramKey="0501-System_Context_Diagram"]
+structurizrc4::workspace.dsl[renderer="structurizr",viewKey="0501-System_Context_Diagram"]
 ----
-
 
 == Usage with the Asciidoctor Maven plugin
 

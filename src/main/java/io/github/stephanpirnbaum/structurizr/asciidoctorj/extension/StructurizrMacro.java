@@ -1,11 +1,9 @@
 package io.github.stephanpirnbaum.structurizr.asciidoctorj.extension;
 
-import io.github.stephanpirnbaum.structurizr.renderer.AbstractDiagramExporter;
+import io.github.stephanpirnbaum.structurizr.renderer.Renderer;
 import io.github.stephanpirnbaum.structurizr.renderer.StructurizrRenderingException;
-import io.github.stephanpirnbaum.structurizr.renderer.mermaid.MermaidExporter;
-import io.github.stephanpirnbaum.structurizr.renderer.plantuml.PlantUMLExporter;
+import io.github.stephanpirnbaum.structurizr.renderer.WorkspaceRenderer;
 import io.github.stephanpirnbaum.structurizr.renderer.plantuml.PlantumlLayoutEngine;
-import io.github.stephanpirnbaum.structurizr.renderer.structurizr.StructurizrExporter;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -27,8 +25,7 @@ import java.util.Map;
 @Name("structurizrc4")
 public class StructurizrMacro extends BlockMacroProcessor {
 
-    // Cache expensive exporters (Playwright installation)
-    private StructurizrExporter structurizrExporter;
+    private final WorkspaceRenderer workspaceRenderer = new WorkspaceRenderer();
 
     public StructurizrMacro() {
         log.debug("Constructing Structurizr Macro");
@@ -40,16 +37,23 @@ public class StructurizrMacro extends BlockMacroProcessor {
         String viewKey = resolveViewKey(attributes);
         String title = resolveTitle(attributes, viewKey);
 
-        AbstractDiagramExporter diagramExporter = resolveDiagramExporter(attributes, viewKey);
-
         Path workspaceDslPath = Path.of((String) structuralNode.getDocument().getAttribute("docdir"), workspacePath);
 
         Path workspaceJsonPath = resolveWorkspaceJson(structuralNode, attributes);
 
         Path outDir = resolveOutdir(structuralNode);
 
+        String renderer = (String) attributes.get("renderer");
+        String plantumlLayoutEngine = (String) attributes.get("plantumlLayoutEngine");
+
         try {
-            Map<String, Path> diagrams = diagramExporter.export(workspaceDslPath, workspaceJsonPath, outDir.toFile(), viewKey);
+            Map<String, Path> diagrams = this.workspaceRenderer.render(
+                    workspaceDslPath,
+                    workspaceJsonPath,
+                    outDir,
+                    viewKey,
+                    renderer != null ? Renderer.valueOf(renderer.toUpperCase()) : null,
+                    plantumlLayoutEngine != null ? PlantumlLayoutEngine.valueOf(plantumlLayoutEngine.toUpperCase()) : null);
 
             List<String> lines = Arrays.asList(
                     "." + title,
@@ -70,26 +74,6 @@ public class StructurizrMacro extends BlockMacroProcessor {
             workspaceJsonPath = Path.of((String) structuralNode.getDocument().getAttribute("docdir"), workspaceJson);
         }
         return workspaceJsonPath;
-    }
-
-    private AbstractDiagramExporter resolveDiagramExporter(Map<String, Object> attributes, String viewKey) throws StructurizrRenderingException {
-        String diagramRenderer = (String) attributes.getOrDefault("renderer", "structurizr");
-        PlantumlLayoutEngine plantumlLayoutEngine = PlantumlLayoutEngine.valueOf(((String) attributes.getOrDefault("plantumlLayoutEngine", "graphviz")).toUpperCase());
-
-        AbstractDiagramExporter diagramExporter = switch (diagramRenderer) {
-            case "plantuml-c4" -> new PlantUMLExporter(plantumlLayoutEngine);
-            case "mermaid" -> new MermaidExporter();
-            case "structurizr" -> {
-                if (this.structurizrExporter == null){
-                    this.structurizrExporter = new StructurizrExporter(true);
-                }
-                yield this.structurizrExporter;
-            }
-            default -> throw new StructurizrException("Unknown diagram renderer specified: " + diagramRenderer);
-        };
-
-        log.debug("Rendering view with key {} using engine {}", viewKey, diagramRenderer);
-        return diagramExporter;
     }
 
     private static String resolveViewKey(Map<String, Object> attributes) {
