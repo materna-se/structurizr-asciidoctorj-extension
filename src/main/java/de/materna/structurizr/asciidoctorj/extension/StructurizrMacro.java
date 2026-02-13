@@ -1,9 +1,9 @@
-package io.github.stephanpirnbaum.structurizr.asciidoctorj.extension;
+package de.materna.structurizr.asciidoctorj.extension;
 
-import io.github.stephanpirnbaum.structurizr.renderer.Renderer;
-import io.github.stephanpirnbaum.structurizr.renderer.StructurizrRenderingException;
-import io.github.stephanpirnbaum.structurizr.renderer.WorkspaceRenderer;
-import io.github.stephanpirnbaum.structurizr.renderer.plantuml.PlantumlLayoutEngine;
+import de.materna.structurizr.renderer.Renderer;
+import de.materna.structurizr.renderer.StructurizrRenderingException;
+import de.materna.structurizr.renderer.WorkspaceRenderer;
+import de.materna.structurizr.renderer.plantuml.PlantumlLayoutEngine;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;

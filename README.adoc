@@ -79,7 +79,7 @@ The extension must be used as a dependency to the `asciidoctor-maven-plugin`:
     </executions>
     <dependencies>
         <dependency>
-            <groupId>io.github.stephanpirnbaum</groupId>
+            <groupId>de.materna.structurizr</groupId>
             <artifactId>structurizr-asciidoctorj-extension</artifactId>
             <version>1.0.0</version>
         </dependency>

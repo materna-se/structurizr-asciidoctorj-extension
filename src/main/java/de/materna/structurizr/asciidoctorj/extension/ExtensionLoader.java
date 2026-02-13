@@ -1,4 +1,4 @@
-package io.github.stephanpirnbaum.structurizr.asciidoctorj.extension;
+package de.materna.structurizr.asciidoctorj.extension;
 
 import lombok.extern.slf4j.Slf4j;
 import org.asciidoctor.Asciidoctor;

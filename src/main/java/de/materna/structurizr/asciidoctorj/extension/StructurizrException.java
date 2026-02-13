@@ -1,4 +1,4 @@
-package io.github.stephanpirnbaum.structurizr.asciidoctorj.extension;
+package de.materna.structurizr.asciidoctorj.extension;
 
 /**
  * Exception thrown when issues during processing of the Structurizr workspace occur.
