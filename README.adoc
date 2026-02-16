@@ -4,6 +4,8 @@ This extension supports the rendering of Structurizr DSL views in AsciiDoc using
 
 This extension provides a macro called `structurizrc4` that can be used directly in an Asciidoc document. It is configurable to support different renderers (C4-PlantUML, Mermaid and the Structurizr renderer used by the Structurizr Lite UI) and, when the latter is used, supports also manual layout files.
 
+NOTE:: https://github.com/materna-se/structurizr-renderer[structurizr-renderer] is used under the hood. For further details on usage and configuration, see its readme.
+
 NOTE:: When C4-PlantUML is used with the default layouting algorithm GraphViz, a GraphViz installation is required and `dot` needs to be on the path.
 
 NOTE:: When Mermaid is used, a Mermaid installation is required and `mmdc` needs to be on the path.
@@ -74,6 +76,9 @@ The extension must be used as a dependency to the `asciidoctor-maven-plugin`:
             </goals>
             <configuration>
                 <sourceDirectory>${project.basedir}/arc42</sourceDirectory>
+                <attributes> <!--1-->
+                    <playwrightWsEndpoint>ws://localhost:3000/playwright/chromium</playwrightWsEndpoint>
+                </attributes>
             </configuration>
         </execution>
     </executions>
@@ -86,6 +91,7 @@ The extension must be used as a dependency to the `asciidoctor-maven-plugin`:
     </dependencies>
 </plugin>
 ----
+<1> Optionally configure a Playwright server to connect to instead of triggering local install.
 
 == Usage with the IntelliJ AsciiDoc plugin
 

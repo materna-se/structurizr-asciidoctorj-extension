@@ -46,6 +46,8 @@ public class StructurizrMacro extends BlockMacroProcessor {
         String renderer = (String) attributes.get("renderer");
         String plantumlLayoutEngine = (String) attributes.get("plantumlLayoutEngine");
 
+        String playwrightWsEndpoint = (String) structuralNode.getDocument().getAttribute("playwrightwsendpoint"); // attribute is lower-cased by asciidoctor
+
         try {
             Map<String, Path> diagrams = this.workspaceRenderer.render(
                     workspaceDslPath,
@@ -53,7 +55,8 @@ public class StructurizrMacro extends BlockMacroProcessor {
                     outDir,
                     viewKey,
                     renderer != null ? Renderer.valueOf(renderer.toUpperCase()) : null,
-                    plantumlLayoutEngine != null ? PlantumlLayoutEngine.valueOf(plantumlLayoutEngine.toUpperCase()) : null);
+                    plantumlLayoutEngine != null ? PlantumlLayoutEngine.valueOf(plantumlLayoutEngine.toUpperCase()) : null,
+                    playwrightWsEndpoint);
 
             List<String> lines = Arrays.asList(
                     "." + title,
