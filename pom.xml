@@ -8,6 +8,10 @@
     <artifactId>structurizr-asciidoctorj-extension</artifactId>
     <version>1.0.0-SNAPSHOT</version>
 
+    <name>Structurizr AsciidoctorJ Extension</name>
+    <description>AsciidoctorJ extension to render Structurizr workspaces providing different rendering algorithms.</description>
+    <url>https://github.com/materna-se/structurizr-maven-plugin</url>
+
     <developers>
         <developer>
             <name>Stephan Pirnbaum</name>
@@ -27,6 +31,8 @@
     <scm>
         <url>https://github.com/materna-se/structurizr-asciidoctorj-extension</url>
         <connection>scm:git:https://github.com/materna-se/structurizr-asciidoctorj-extension.git</connection>
+        <developerConnection>scm:git:https://github.com/materna-se/structurizr-asciidoctorj-extension.git</developerConnection>
+        <tag>HEAD</tag>
     </scm>
 
     <properties>
@@ -36,7 +42,7 @@
         <version.asciidoctorj>3.0.1</version.asciidoctorj>
         <version.lombok>1.18.42</version.lombok>
         <version.slf4j>2.0.17</version.slf4j>
-        <version.structurizr-renderer>1.0.0-SNAPSHOT</version.structurizr-renderer>
+        <version.structurizr-renderer>1.0.0-M1</version.structurizr-renderer>
     </properties>
 
     <dependencies>
@@ -121,6 +127,33 @@
                 <plugins>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-source-plugin</artifactId>
+                        <version>3.4.0</version>
+                        <executions>
+                            <execution>
+                                <id>attach-sources</id>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <version>3.12.0</version>
+                        <executions>
+                            <execution>
+                                <id>attach-javadocs</id>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-gpg-plugin</artifactId>
                         <version>3.2.8</version>
                         <executions>
@@ -148,7 +181,18 @@
                         <extensions>true</extensions>
                         <configuration>
                             <publishingServerId>ossrh</publishingServerId>
+                            <autoPublish>true</autoPublish>
+                            <waitUntil>published</waitUntil>
                         </configuration>
+                        <executions>
+                            <execution>
+                                <id>publish</id>
+                                <phase>deploy</phase>
+                                <goals>
+                                    <goal>publish</goal>
+                                </goals>
+                            </execution>
+                        </executions>
                     </plugin>
                 </plugins>
             </build>
@@ -158,6 +202,10 @@
                     <id>ossrh</id>
                     <url>https://central.sonatype.com/repository/maven-snapshots/</url>
                 </snapshotRepository>
+                <repository>
+                    <id>ossrh</id>
+                    <url>https://ossrh-staging-api.central.sonatype.com/service/local/staging/deploy/maven2/</url>
+                </repository>
             </distributionManagement>
         </profile>
         <profile>
