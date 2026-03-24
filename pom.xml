@@ -40,7 +40,7 @@
         <version.asciidoctorj>3.0.1</version.asciidoctorj>
         <version.lombok>1.18.42</version.lombok>
         <version.slf4j>2.0.17</version.slf4j>
-        <version.structurizr-renderer>1.0.0-M1</version.structurizr-renderer>
+        <version.structurizr-renderer>1.0.0</version.structurizr-renderer>
     </properties>
 
     <dependencies>
