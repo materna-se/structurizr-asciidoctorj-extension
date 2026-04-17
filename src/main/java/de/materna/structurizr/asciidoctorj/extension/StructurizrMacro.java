@@ -15,6 +15,9 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Macro for Asciidoc.
@@ -47,6 +50,11 @@ public class StructurizrMacro extends BlockMacroProcessor {
         String plantumlLayoutEngine = (String) attributes.get("plantumlLayoutEngine");
 
         String playwrightWsEndpoint = (String) structuralNode.getDocument().getAttribute("playwrightwsendpoint"); // attribute is lower-cased by asciidoctor
+        String width = (String) attributes.get("width");
+        String height = (String) attributes.get("height");
+        String size = Stream.of(StringUtils.isNotBlank(width) ? "width=" + width : null, StringUtils.isNotBlank(height) ? "height=" + height : null)
+                .filter(Objects::nonNull)
+                .collect(Collectors.joining(","));
 
         try {
             Map<String, Path> diagrams = this.workspaceRenderer.render(
@@ -60,7 +68,7 @@ public class StructurizrMacro extends BlockMacroProcessor {
 
             List<String> lines = Arrays.asList(
                     "." + title,
-                    "image::" + diagrams.get(viewKey).getFileName().toString() + "[]"
+                    "image::" + diagrams.get(viewKey).getFileName().toString() + "[" + size + "]"
             );
 
             parseContent(structuralNode, lines);
