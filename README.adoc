@@ -57,6 +57,13 @@ A custom title can also be specified. If no title is specified manually, the vie
 structurizrc4::workspace.dsl[renderer="structurizr",viewKey="0501-System_Context_Diagram"]
 ----
 
+Additionally, it is possible to specify width and height of the resulting image. As the resulting diagram is embedded using the native `image::` macro, all the same rules and variants apply here:
+
+[source,asciidoc]
+.Specifying width and height
+----
+structurizrc4::workspace.dsl[renderer="structurizr",viewKey="0501-System_Context_Diagram",width=300,height=300]
+----
 == Usage with the Asciidoctor Maven plugin
 
 The extension must be used as a dependency to the `asciidoctor-maven-plugin`:
