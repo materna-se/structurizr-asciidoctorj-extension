@@ -39,7 +39,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <version.asciidoctorj>3.0.1</version.asciidoctorj>
         <version.lombok>1.18.46</version.lombok>
-        <version.slf4j>2.0.17</version.slf4j>
+        <version.slf4j>2.0.18</version.slf4j>
         <version.structurizr-renderer>1.1.0</version.structurizr-renderer>
     </properties>
 
